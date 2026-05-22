@@ -3,16 +3,32 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AHM7 Sites</title>
+<title>Onimix Sites</title>
 <style>
-body{font-family:sans-serif;background:#08070f;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:20px;}
-a{color:#c084fc;font-size:1.2rem;text-decoration:none;padding:12px 24px;border:1px solid #c084fc;border-radius:8px;}
-a:hover{background:#c084fc22;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:#07080d;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:24px;padding:2rem;}
+h1{font-size:2rem;font-weight:800;background:linear-gradient(135deg,#6366f1,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.cards{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;}
+.card{background:#12141e;border:1px solid #252638;border-radius:12px;padding:24px 32px;text-decoration:none;color:#fff;transition:border-color .2s,transform .2s;min-width:240px;text-align:center;}
+.card:hover{border-color:#6366f1;transform:translateY(-3px);}
+.card .icon{font-size:2rem;margin-bottom:8px;}
+.card h2{font-size:1rem;font-weight:600;}
+.card p{font-size:.82rem;color:#6b7280;margin-top:4px;}
 </style>
 </head>
 <body>
-<h1>AHM7 Sites</h1>
-<a href="/CertSter.html">CertSter — Certificate Generator API</a>
-<a href="/AHM7-Tech-Courses-2026.html">AHM7 Tech Courses 2026</a>
+<h1>Onimix</h1>
+<div class="cards">
+  <a class="card" href="/CertSter.html">
+    <div class="icon">🎓</div>
+    <h2>CertSter</h2>
+    <p>Certificate Generator API</p>
+  </a>
+  <a class="card" href="/Onimix-Tech-Courses-2026.html">
+    <div class="icon">📚</div>
+    <h2>Onimix Tech Courses</h2>
+    <p>1000+ premium courses for free</p>
+  </a>
+</div>
 </body>
 </html>
