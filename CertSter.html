@@ -1,0 +1,816 @@
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CertSter — Certificate Generator API</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#08070f;--bg2:#0e0d1a;--bg3:#131220;
+  --surface:#191828;--surface2:#1f1e32;
+  --border:#272545;--border2:#353360;
+  --accent:#c084fc;--accent2:#a855f7;--accent3:#7c3aed;
+  --aRGB:192,132,252;--glow:rgba(192,132,252,0.14);
+  --text:#f5f0ff;--text2:#ccc8ee;--text3:#8880b0;
+  --muted:#505075;--muted2:#30305a;
+  --green:#10b981;--red:#f43f5e;--warn:#f59e0b;--gold:#fbbf24;
+  --wa:#25d366;--mono:'JetBrains Mono',monospace;
+}
+[data-theme="dark"]{--bg:#050508;--bg2:#09090e;--bg3:#0d0d14;--surface:#111118;--surface2:#16161f;--border:#1d1d28;--border2:#272738;--accent:#60a5fa;--accent2:#3b82f6;--accent3:#1d4ed8;--aRGB:96,165,250;--glow:rgba(96,165,250,0.12);--text:#f0f4ff;--text2:#b8c8f0;--text3:#607098;}
+[data-theme="gold"]{--bg:#0a0800;--bg2:#110e00;--bg3:#181400;--surface:#201900;--surface2:#281f00;--border:#3a2c00;--border2:#524000;--accent:#fbbf24;--accent2:#f59e0b;--accent3:#d97706;--aRGB:251,191,36;--glow:rgba(251,191,36,0.12);--text:#fffaec;--text2:#eedda0;--text3:#a08840;}
+[data-theme="jade"]{--bg:#060d08;--bg2:#0a1410;--bg3:#0f1c15;--surface:#14241a;--surface2:#192c20;--border:#1e3828;--border2:#2a5038;--accent:#34d399;--accent2:#10b981;--accent3:#059669;--aRGB:52,211,153;--glow:rgba(52,211,153,0.12);--text:#edfff6;--text2:#b8e8cc;--text3:#608870;}
+[data-theme="rose"]{--bg:#0f0508;--bg2:#160a10;--bg3:#1e0f18;--surface:#260f1a;--surface2:#2e151e;--border:#3e1c2c;--border2:#561e38;--accent:#fb7185;--accent2:#f43f5e;--accent3:#be123c;--aRGB:251,113,133;--glow:rgba(251,113,133,0.13);--text:#fff0f4;--text2:#ecc8d4;--text3:#a06878;}
+[data-theme="slate"]{--bg:#080c12;--bg2:#0d1018;--bg3:#121620;--surface:#181d28;--surface2:#1e2532;--border:#252e3e;--border2:#304050;--accent:#94a3b8;--accent2:#64748b;--accent3:#475569;--aRGB:148,163,184;--glow:rgba(148,163,184,0.1);--text:#f0f4f8;--text2:#cbd5e1;--text3:#6880a0;}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
+  min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+.bg-r{position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 900px 700px at 15% 30%,rgba(var(--aRGB),0.07),transparent 60%),
+             radial-gradient(ellipse 700px 600px at 85% 75%,rgba(var(--aRGB),0.04),transparent 55%);}
+.bg-g{position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(rgba(var(--aRGB),0.025) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(var(--aRGB),0.025) 1px,transparent 1px);
+  background-size:50px 50px;}
+
+/* ── HEADER ── */
+header{position:relative;z-index:20;max-width:1160px;margin:0 auto;
+  padding:1.5rem 2rem;display:flex;align-items:center;justify-content:space-between;}
+.logo{display:flex;align-items:center;gap:12px;}
+.logo-mark{width:42px;height:42px;border-radius:13px;
+  background:linear-gradient(135deg,var(--accent3),var(--accent));
+  display:flex;align-items:center;justify-content:center;font-size:1.4rem;
+  box-shadow:0 4px 20px rgba(var(--aRGB),0.3);}
+.logo-words{line-height:1.15;}
+.logo-name{font-size:1.35rem;font-weight:800;letter-spacing:-0.8px;
+  background:linear-gradient(135deg,var(--text),var(--accent));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.logo-by{font-family:var(--mono);font-size:0.58rem;color:var(--muted);letter-spacing:0.5px;}
+.hdr-r{display:flex;gap:8px;}
+.hbtn{display:flex;align-items:center;gap:6px;background:var(--surface);
+  border:1px solid var(--border);color:var(--text3);font-family:'Inter',sans-serif;
+  font-size:0.74rem;font-weight:600;padding:7px 13px;border-radius:8px;
+  cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.hbtn:hover{border-color:var(--accent);color:var(--accent);background:var(--glow);}
+.hbtn svg{width:13px;height:13px;}
+.tdot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;}
+
+/* ── LAYOUT ── */
+.wrap{position:relative;z-index:10;max-width:1160px;margin:0 auto;padding:0.5rem 2rem 5rem;}
+
+/* ── TABS ── */
+.page-tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:4px;margin-bottom:2rem;width:fit-content;}
+.page-tab{padding:8px 20px;border-radius:8px;font-size:0.82rem;font-weight:600;
+  cursor:pointer;color:var(--text3);border:none;background:none;transition:all 0.15s;}
+.page-tab.active{background:rgba(var(--aRGB),0.14);color:var(--accent);}
+
+/* ── HERO ── */
+.hero{text-align:center;margin-bottom:2.5rem;}
+.hbadge{display:inline-flex;align-items:center;gap:8px;
+  background:rgba(var(--aRGB),0.08);border:1px solid rgba(var(--aRGB),0.2);
+  padding:5px 15px;border-radius:100px;font-family:var(--mono);
+  font-size:0.67rem;font-weight:600;color:var(--accent);margin-bottom:1.2rem;}
+.hbadge .live{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pls 2s infinite;}
+@keyframes pls{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.7)}}
+.hero h1{font-size:clamp(2rem,5.5vw,3.8rem);font-weight:800;letter-spacing:-2.5px;line-height:1.08;
+  margin-bottom:0.85rem;
+  background:linear-gradient(135deg,var(--text) 20%,var(--accent) 65%,var(--accent2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{font-size:0.92rem;color:var(--text3);max-width:520px;margin:0 auto;line-height:1.65;}
+
+/* ── MAIN GRID ── */
+.main-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;}
+@media(max-width:820px){.main-grid{grid-template-columns:1fr;}}
+
+/* ── CARD ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:18px;overflow:hidden;margin-bottom:16px;}
+.card-hdr{display:flex;align-items:center;gap:10px;padding:1rem 1.4rem;
+  background:var(--bg3);border-bottom:1px solid var(--border);}
+.card-hdr svg{color:var(--accent);}
+.card-title{font-size:0.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);}
+.card-body{padding:1.4rem;}
+
+/* ── FORM ── */
+.frow{margin-bottom:13px;}
+.frow:last-child{margin-bottom:0;}
+label{display:block;font-family:var(--mono);font-size:0.6rem;font-weight:600;
+  letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+input[type="text"],textarea,select{
+  width:100%;background:var(--bg2);border:1.5px solid var(--border);
+  border-radius:9px;color:var(--text2);font-family:'Inter',sans-serif;font-size:0.87rem;
+  padding:10px 12px;outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
+input[type="text"]:focus,textarea:focus,select:focus{
+  border-color:var(--accent);box-shadow:0 0 0 3px var(--glow);}
+input::placeholder,textarea::placeholder{color:var(--muted2);}
+textarea{resize:vertical;line-height:1.65;}
+select option{background:var(--bg3);}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:13px;}
+
+/* format chips */
+.fmt-chips{display:flex;gap:8px;margin-top:4px;}
+.fmt-chip{padding:6px 14px;border:1px solid var(--border);border-radius:7px;
+  font-family:var(--mono);font-size:0.72rem;cursor:pointer;color:var(--text3);
+  background:var(--bg2);transition:all 0.15s;}
+.fmt-chip.active{background:rgba(var(--aRGB),0.12);border-color:rgba(var(--aRGB),0.4);color:var(--accent);}
+
+/* ── TEMPLATE GRID ── */
+.tmpl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;}
+.tmpl-card{background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;
+  padding:10px 12px;cursor:pointer;transition:all 0.15s;text-align:center;}
+.tmpl-card:hover{border-color:var(--border2);background:var(--bg3);}
+.tmpl-card.selected{background:rgba(var(--aRGB),0.1);border-color:rgba(var(--aRGB),0.4);}
+.tmpl-card.selected .tmpl-name{color:var(--accent);}
+.tmpl-num{font-family:var(--mono);font-size:0.6rem;color:var(--muted);margin-bottom:4px;}
+.tmpl-name{font-size:0.8rem;font-weight:600;color:var(--text2);line-height:1.3;}
+.tmpl-emoji{font-size:1.4rem;margin-bottom:4px;}
+
+/* ── GEN BUTTON ── */
+.gen-btn{width:100%;
+  background:linear-gradient(135deg,var(--accent3),var(--accent2),var(--accent));
+  border:none;color:#fff;font-family:'Inter',sans-serif;font-weight:700;
+  font-size:0.93rem;padding:13px;border-radius:11px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  transition:all 0.2s;box-shadow:0 4px 20px rgba(var(--aRGB),0.28);}
+.gen-btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(var(--aRGB),0.4);}
+.gen-btn:active{transform:translateY(0);}
+.gen-btn:disabled{opacity:0.35;cursor:not-allowed;transform:none;box-shadow:none;}
+
+/* progress */
+.prog-wrap{margin-top:13px;display:none;}
+.prog-wrap.show{display:block;}
+.prog-bg{height:4px;background:var(--border);border-radius:100px;overflow:hidden;margin-bottom:8px;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent3),var(--accent));
+  border-radius:100px;transition:width 0.4s ease;}
+.prog-txt{font-family:var(--mono);font-size:0.68rem;color:var(--text3);text-align:center;}
+
+/* result */
+.result-wrap{margin-top:13px;display:none;}
+.result-wrap.show{display:block;animation:su 0.3s ease;}
+@keyframes su{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.result-box{background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:1rem 1.2rem;}
+.result-top{display:flex;align-items:center;gap:10px;margin-bottom:11px;}
+.result-icon{width:36px;height:36px;border-radius:9px;background:rgba(var(--aRGB),0.12);
+  display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.result-info{flex:1;min-width:0;}
+.result-name{font-size:0.87rem;font-weight:700;color:var(--text);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.result-meta{font-family:var(--mono);font-size:0.65rem;color:var(--muted);margin-top:2px;}
+.dl-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
+  background:var(--accent2);border:none;color:#fff;font-family:'Inter',sans-serif;
+  font-weight:700;font-size:0.87rem;padding:10px;border-radius:9px;
+  cursor:pointer;text-decoration:none;transition:opacity 0.18s;}
+.dl-btn:hover{opacity:0.88;}
+.dl-btn svg{width:13px;height:13px;}
+
+/* ── CHANNELS ── */
+.ch-wrap{margin-top:8px;}
+.ch-heading{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.ch-heading::before,.ch-heading::after{content:'';flex:1;height:1px;background:var(--border);}
+.ch-heading span{font-family:var(--mono);font-size:0.58rem;font-weight:600;
+  letter-spacing:2px;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
+.ch-cards{display:flex;flex-direction:column;gap:8px;}
+.ch-card{display:flex;align-items:center;gap:12px;background:var(--surface);
+  border:1px solid var(--border);border-radius:12px;padding:11px 14px;
+  text-decoration:none;color:var(--text);transition:all 0.2s;}
+.ch-card:hover{border-color:var(--wa);transform:translateY(-1px);
+  box-shadow:0 6px 20px rgba(37,211,102,0.1);}
+.ch-av{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;
+  justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0;color:#fff;}
+.av1{background:linear-gradient(135deg,#25d366,#128c7e);}
+.av2{background:linear-gradient(135deg,#20bf6b,#0a7a4e);}
+.ch-info{flex:1;min-width:0;}
+.ch-name{font-size:0.87rem;font-weight:700;color:var(--text);margin-bottom:1px;}
+.ch-sub{font-size:0.64rem;color:var(--muted);font-family:var(--mono);}
+.ch-follow{display:flex;align-items:center;gap:4px;background:var(--wa);
+  color:#fff;font-size:0.68rem;font-weight:700;padding:5px 11px;border-radius:6px;flex-shrink:0;}
+
+/* ── DOCS PAGE ── */
+.docs-page{display:none;}
+.docs-page.show{display:block;}
+
+.ds{margin-bottom:2rem;}
+.ds:last-child{margin-bottom:0;}
+.dlbl{font-family:var(--mono);font-size:0.6rem;letter-spacing:2px;
+  text-transform:uppercase;color:var(--muted);margin-bottom:0.6rem;}
+.base-url-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:11px 15px;font-family:var(--mono);font-size:0.82rem;color:var(--accent);
+  display:flex;align-items:center;justify-content:space-between;gap:10px;word-break:break-all;}
+.note-box{background:rgba(var(--aRGB),0.06);border:1px solid rgba(var(--aRGB),0.18);
+  border-radius:10px;padding:12px 15px;font-size:0.82rem;color:var(--text3);line-height:1.7;}
+.note-box code{font-family:var(--mono);color:var(--accent);font-size:0.85em;}
+.ep-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  overflow:hidden;margin-bottom:12px;}
+.ep-hdr{display:flex;align-items:center;gap:10px;padding:10px 15px;
+  background:var(--bg3);border-bottom:1px solid var(--border);}
+.dm{font-family:var(--mono);font-size:0.62rem;font-weight:700;
+  padding:2px 8px;border-radius:4px;}
+.dm.get{background:rgba(52,211,153,0.14);color:var(--green);}
+.dm.post{background:rgba(var(--aRGB),0.14);color:var(--accent);}
+.ep-path{font-family:var(--mono);font-size:0.82rem;color:var(--text);}
+.ep-body{padding:14px 15px;}
+.ep-desc{font-size:0.83rem;color:var(--text2);margin-bottom:12px;line-height:1.65;}
+.params-table{width:100%;border-collapse:collapse;margin-bottom:12px;}
+.params-table th{text-align:left;font-family:var(--mono);font-size:0.6rem;
+  letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);
+  padding:0 0 6px;border-bottom:1px solid var(--border);}
+.params-table td{padding:7px 0;font-size:0.8rem;border-bottom:1px solid var(--border);
+  vertical-align:top;}
+.params-table tr:last-child td{border-bottom:none;}
+.pname{font-family:var(--mono);color:#93c5fd;font-size:0.75rem;padding-right:12px;}
+.ptype{font-family:var(--mono);color:var(--warn);font-size:0.72rem;padding-right:12px;}
+.preq{font-size:0.62rem;background:rgba(244,63,94,0.1);color:#fca5a5;
+  border-radius:4px;padding:1px 6px;white-space:nowrap;}
+.popt{font-size:0.62rem;background:rgba(52,211,153,0.1);color:#6ee7b7;
+  border-radius:4px;padding:1px 6px;white-space:nowrap;}
+.pdesc{color:var(--text3);font-size:0.77rem;padding-right:8px;}
+.code-block{background:var(--bg);border:1px solid var(--border);border-radius:9px;overflow:hidden;margin-top:10px;}
+.code-hdr{display:flex;align-items:center;justify-content:space-between;
+  padding:7px 12px;background:rgba(255,255,255,0.02);border-bottom:1px solid var(--border);}
+.code-lang{font-family:var(--mono);font-size:0.62rem;color:var(--muted);letter-spacing:1px;}
+pre{padding:12px 14px;font-family:var(--mono);font-size:0.72rem;
+  color:var(--text2);overflow-x:auto;line-height:1.68;white-space:pre;}
+.tmpl-table{width:100%;border-collapse:collapse;}
+.tmpl-table th{text-align:left;font-family:var(--mono);font-size:0.6rem;
+  letter-spacing:1px;text-transform:uppercase;color:var(--muted);
+  padding:0 0 6px;border-bottom:1px solid var(--border);}
+.tmpl-table td{padding:8px 0;font-size:0.82rem;border-bottom:1px solid var(--border);color:var(--text2);}
+.tmpl-table tr:last-child td{border-bottom:none;}
+.tid{font-family:var(--mono);color:var(--accent);font-size:0.78rem;padding-right:16px;}
+.err-grid{display:grid;grid-template-columns:auto 1fr;
+  background:var(--bg3);border:1px solid var(--border);border-radius:9px;overflow:hidden;}
+.ec{padding:8px 12px;font-size:0.8rem;border-bottom:1px solid var(--border);}
+.err-grid>.ec:nth-last-child(-n+2){border-bottom:none;}
+.ecode{font-family:var(--mono);color:var(--warn);border-right:1px solid var(--border);}
+.emsg{color:var(--text2);}
+.cmini{background:none;border:1px solid var(--border);color:var(--muted);
+  font-family:var(--mono);font-size:0.65rem;padding:3px 9px;border-radius:5px;
+  cursor:pointer;transition:all 0.15s;}
+.cmini:hover{border-color:var(--accent);color:var(--accent);}
+
+/* spinner */
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block;}
+
+/* toast */
+.toast-wrap{position:fixed;bottom:1.5rem;right:1.5rem;z-index:999;display:flex;flex-direction:column;gap:8px;}
+.toast{font-family:var(--mono);font-size:0.72rem;padding:9px 14px;border-radius:9px;
+  animation:tIn 0.2s ease;max-width:300px;}
+@keyframes tIn{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+.toast.ok{background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);color:var(--green);}
+.toast.err{background:rgba(244,63,94,0.1);border:1px solid rgba(244,63,94,0.3);color:var(--red);}
+.toast.info{background:rgba(var(--aRGB),0.1);border:1px solid rgba(var(--aRGB),0.25);color:var(--accent);}
+
+footer{text-align:center;padding:1.5rem;color:var(--muted2);font-family:var(--mono);
+  font-size:0.63rem;border-top:1px solid var(--border);position:relative;z-index:10;}
+</style>
+</head>
+<body data-theme="jade">
+<div class="bg-r"></div>
+<div class="bg-g"></div>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">📜</div>
+    <div class="logo-words">
+      <div class="logo-name">CertSter</div>
+      <div class="logo-by">by Ahm7xMakki</div>
+    </div>
+  </div>
+  <div class="hdr-r">
+    <button class="hbtn" onclick="cycleTheme()">
+      <span class="tdot"></span>
+      <span id="theme-lbl">Jade</span>
+    </button>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- TAB SWITCHER -->
+  <div class="page-tabs">
+    <button class="page-tab active" onclick="switchPage('generator',this)">Generator</button>
+    <button class="page-tab" onclick="switchPage('docs',this)">API Docs</button>
+  </div>
+
+  <!-- ══ GENERATOR PAGE ══ -->
+  <div id="page-generator">
+    <div class="hero">
+      <div class="hbadge"><span class="live"></span>8 Templates • PDF / JPG / PNG • Instant Download</div>
+      <h1>Generate professional<br>certificates instantly.</h1>
+      <p>Fill in the details, pick a template and format, then download your certificate.</p>
+    </div>
+
+    <div class="main-grid">
+      <!-- LEFT: FORM -->
+      <div>
+        <div class="card">
+          <div class="card-hdr">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+            <span class="card-title">Certificate Details</span>
+          </div>
+          <div class="card-body">
+            <div class="frow">
+              <label>Recipient's Full Name</label>
+              <input type="text" id="f-name" placeholder="Muhammad Makki">
+            </div>
+            <div class="two-col">
+              <div>
+                <label>Date</label>
+                <input type="text" id="f-date" placeholder="01/01/2025">
+              </div>
+              <div>
+                <label>Signed By</label>
+                <input type="text" id="f-sig" placeholder="Dr. John Smith">
+              </div>
+            </div>
+            <div class="frow">
+              <label>Certificate Details / Reason</label>
+              <textarea id="f-details" rows="4" placeholder="This certificate is awarded to [Name] in recognition of outstanding achievement in..."></textarea>
+            </div>
+            <div class="frow">
+              <label>Output Format</label>
+              <div class="fmt-chips">
+                <div class="fmt-chip active" onclick="setFmt('pdf',this)">PDF</div>
+                <div class="fmt-chip" onclick="setFmt('jpg',this)">JPG</div>
+                <div class="fmt-chip" onclick="setFmt('png',this)">PNG</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- GENERATE -->
+        <div class="card">
+          <div class="card-hdr">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            <span class="card-title">Generate</span>
+          </div>
+          <div class="card-body">
+            <button class="gen-btn" id="gen-btn" onclick="generateCert()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Download Certificate
+            </button>
+            <div class="prog-wrap" id="prog-wrap">
+              <div class="prog-bg"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+              <div class="prog-txt" id="prog-txt">Generating...</div>
+            </div>
+            <div class="result-wrap" id="result-wrap">
+              <div class="result-box">
+                <div class="result-top">
+                  <div class="result-icon">📜</div>
+                  <div class="result-info">
+                    <div class="result-name" id="result-name">certificate.pdf</div>
+                    <div class="result-meta" id="result-meta"></div>
+                  </div>
+                </div>
+                <a class="dl-btn" id="dl-btn" href="#" download="">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                  Download Again
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CHANNELS -->
+        <div class="ch-wrap">
+          <div class="ch-heading"><span>Follow our WhatsApp Channels</span></div>
+          <div class="ch-cards">
+            <a href="https://whatsapp.com/channel/0029Vb901QrFy724Izy9Wn0m" target="_blank" rel="noopener" class="ch-card">
+              <div class="ch-av av1">MM</div>
+              <div class="ch-info"><div class="ch-name">Muhammad Makki</div><div class="ch-sub">WhatsApp Channel</div></div>
+              <div class="ch-follow"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>Follow</div>
+            </a>
+            <a href="https://www.whatsapp.com/channel/0029VaOqbIr2P59sgcIri51d" target="_blank" rel="noopener" class="ch-card">
+              <div class="ch-av av2">AT</div>
+              <div class="ch-info"><div class="ch-name">Ahm7Tech</div><div class="ch-sub">WhatsApp Channel</div></div>
+              <div class="ch-follow"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>Follow</div>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: TEMPLATE PICKER -->
+      <div>
+        <div class="card">
+          <div class="card-hdr">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            <span class="card-title">Choose Template</span>
+          </div>
+          <div class="card-body">
+            <div class="tmpl-grid" id="tmpl-grid">
+    <div class="tmpl-card selected" onclick="selectTemplate(1)">
+      <div class="tmpl-emoji">🎓</div>
+      <div class="tmpl-num">#1</div>
+      <div class="tmpl-name">Modern</div>
+    </div>
+    <div class="tmpl-card " onclick="selectTemplate(2)">
+      <div class="tmpl-emoji">🌑</div>
+      <div class="tmpl-num">#2</div>
+      <div class="tmpl-name">Dark Background</div>
+    </div>
+    <div class="tmpl-card " onclick="selectTemplate(3)">
+      <div class="tmpl-emoji">🌿</div>
+      <div class="tmpl-num">#3</div>
+      <div class="tmpl-name">Green</div>
+    </div>
+    <div class="tmpl-card " onclick="selectTemplate(4)">
+      <div class="tmpl-emoji">📋</div>
+      <div class="tmpl-num">#4</div>
+      <div class="tmpl-name">Classic</div>
+    </div>
+    <div class="tmpl-card " onclick="selectTemplate(5)">
+      <div class="tmpl-emoji">🔴</div>
+      <div class="tmpl-num">#5</div>
+      <div class="tmpl-name">Red and Yellow</div>
+    </div>
+    <div class="tmpl-card " onclick="selectTemplate(6)">
+      <div class="tmpl-emoji">✨</div>
+      <div class="tmpl-num">#6</div>
+      <div class="tmpl-name">Golden Elegant</div>
+    </div>
+    <div class="tmpl-card " onclick="selectTemplate(7)">
+      <div class="tmpl-emoji">🔵</div>
+      <div class="tmpl-num">#7</div>
+      <div class="tmpl-name">Blue Simple</div>
+    </div>
+    <div class="tmpl-card " onclick="selectTemplate(8)">
+      <div class="tmpl-emoji">🏆</div>
+      <div class="tmpl-num">#8</div>
+      <div class="tmpl-name">Golden and Green</div>
+    </div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ DOCS PAGE ══ -->
+  <div id="page-docs" class="docs-page">
+
+    <div class="ds">
+      <div class="dlbl">Base URL</div>
+      <div class="base-url-box">
+        <span id="doc-base-url"></span>
+        <button class="cmini" onclick="copyBaseUrl(this)">Copy</button>
+      </div>
+    </div>
+
+    <div class="ds">
+      <div class="dlbl">Overview</div>
+      <div class="note-box">
+        CertSter exposes a single endpoint: <code>/api/certificate</code>.
+        Use <code>GET</code> to list templates, and <code>POST</code> to generate a certificate.
+        The POST endpoint streams the file back directly — no polling needed.
+        Filename is auto-set to <code>Certificate_&lt;Name&gt;_&lt;Template&gt;-Ahm7xMakki.pdf</code>.
+      </div>
+    </div>
+
+    <div class="ds">
+      <div class="dlbl">Endpoints</div>
+
+      <!-- GET templates -->
+      <div class="ep-card">
+        <div class="ep-hdr">
+          <span class="dm get">GET</span>
+          <span class="ep-path">/api/certificate?action=templates</span>
+        </div>
+        <div class="ep-body">
+          <p class="ep-desc">Returns the full list of available certificate templates with their IDs.</p>
+          <div class="code-block">
+            <div class="code-hdr"><span class="code-lang">CURL</span><button class="cmini" onclick="copyCode(this)">Copy</button></div>
+            <pre id="curl-templates"></pre>
+          </div>
+          <div class="code-block" style="margin-top:8px">
+            <div class="code-hdr"><span class="code-lang">RESPONSE</span></div>
+            <pre>{
+  "success": true,
+  "count": 8,
+  "templates": [
+    { "id": 1, "name": "Modern" },
+    { "id": 2, "name": "Dark Background" },
+    ...
+  ]
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- POST generate -->
+      <div class="ep-card">
+        <div class="ep-hdr">
+          <span class="dm post">POST</span>
+          <span class="ep-path">/api/certificate</span>
+        </div>
+        <div class="ep-body">
+          <p class="ep-desc">Generates a certificate and streams back the file binary directly. Takes 3–8 seconds.</p>
+          <table class="params-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Status</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="pname">name</td><td class="ptype">string</td><td><span class="preq">required</span></td><td class="pdesc">Recipient's full name</td></tr>
+              <tr><td class="pname">date</td><td class="ptype">string</td><td><span class="preq">required</span></td><td class="pdesc">Date shown on the certificate</td></tr>
+              <tr><td class="pname">signature</td><td class="ptype">string</td><td><span class="preq">required</span></td><td class="pdesc">Signing authority name</td></tr>
+              <tr><td class="pname">details</td><td class="ptype">string</td><td><span class="preq">required</span></td><td class="pdesc">Body text / reason for the certificate</td></tr>
+              <tr><td class="pname">templateId</td><td class="ptype">number</td><td><span class="preq">required</span></td><td class="pdesc">Template number 1–8 (from /api/certificate?action=templates)</td></tr>
+              <tr><td class="pname">format</td><td class="ptype">string</td><td><span class="popt">optional</span></td><td class="pdesc"><code style="font-family:var(--mono);color:var(--accent)">"pdf"</code> (default), <code style="font-family:var(--mono);color:var(--accent)">"jpg"</code>, or <code style="font-family:var(--mono);color:var(--accent)">"png"</code></td></tr>
+              <tr><td class="pname">returnUrl</td><td class="ptype">boolean</td><td><span class="popt">optional</span></td><td class="pdesc">If <code style="font-family:var(--mono);color:var(--accent)">true</code>, returns JSON with the render URL instead of the file stream</td></tr>
+            </tbody>
+          </table>
+          <div class="code-block">
+            <div class="code-hdr"><span class="code-lang">CURL — download file</span><button class="cmini" onclick="copyCode(this)">Copy</button></div>
+            <pre id="curl-generate"></pre>
+          </div>
+          <div class="code-block" style="margin-top:8px">
+            <div class="code-hdr"><span class="code-lang">CURL — get URL only (returnUrl: true)</span><button class="cmini" onclick="copyCode(this)">Copy</button></div>
+            <pre id="curl-url"></pre>
+          </div>
+          <div class="code-block" style="margin-top:8px">
+            <div class="code-hdr"><span class="code-lang">RESPONSE HEADERS (file stream)</span></div>
+            <pre>Content-Type:        application/pdf
+Content-Disposition: attachment; filename="Certificate_Muhammad_Makki_Modern-Ahm7xMakki.pdf"
+Content-Length:      &lt;bytes&gt;
+X-Template-Name:     Modern
+X-File-Name:         Certificate_Muhammad_Makki_Modern-Ahm7xMakki.pdf</pre>
+          </div>
+          <div class="code-block" style="margin-top:8px">
+            <div class="code-hdr"><span class="code-lang">RESPONSE — returnUrl: true</span></div>
+            <pre>{
+  "success": true,
+  "renderUrl": "https://...",
+  "template": "Modern",
+  "format": "pdf",
+  "fields": { "name": "ONIMIX TECH", "date": "01/01/2025", "signature": "Dr. ONIMIX" }
+}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ds">
+      <div class="dlbl">Templates</div>
+      <div class="card" style="margin-bottom:0">
+        <div class="card-body" style="padding:1rem 1.2rem">
+          <table class="tmpl-table">
+            <thead><tr><th>ID</th><th>Name</th></tr></thead>
+            <tbody id="tmpl-docs-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="ds">
+      <div class="dlbl">JavaScript example</div>
+      <div class="code-block">
+        <div class="code-hdr"><span class="code-lang">JAVASCRIPT</span><button class="cmini" onclick="copyCode(this)">Copy</button></div>
+        <pre id="js-example"></pre>
+      </div>
+    </div>
+
+    <div class="ds">
+      <div class="dlbl">Error codes</div>
+      <div class="err-grid">
+        <div class="ec ecode">400</div><div class="ec emsg">Missing or invalid fields — response includes required fields list</div>
+        <div class="ec ecode">502</div><div class="ec emsg">Templated API did not return a render URL — retry</div>
+        <div class="ec ecode">500</div><div class="ec emsg">Internal server error</div>
+        <div class="ec ecode">405</div><div class="ec emsg">Wrong HTTP method — use GET or POST</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>CertSter by Ahm7xMakki • Professional Certificate Generator API</footer>
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+const BASE = window.location.origin;
+
+// ── Themes ───────────────────────────────────────────────────────────────────
+const THEMES = [
+  {k:'violet',l:'Violet'},{k:'dark',l:'Obsidian'},{k:'gold',l:'Gold'},
+  {k:'jade',l:'Jade'},{k:'rose',l:'Rose'},{k:'slate',l:'Slate'},
+];
+let themeIdx = 0;
+function cycleTheme() {
+  themeIdx = (themeIdx + 1) % THEMES.length;
+  const t = THEMES[themeIdx];
+  document.body.setAttribute('data-theme', t.k);
+  document.getElementById('theme-lbl').textContent = t.l;
+  try { localStorage.setItem('cs-theme', themeIdx); } catch(e) {}
+}
+(function(){
+  try {
+    const s = parseInt(localStorage.getItem('cs-theme'));
+    if (!isNaN(s) && s >= 0 && s < THEMES.length) {
+      themeIdx = s;
+      document.body.setAttribute('data-theme', THEMES[s].k);
+      document.getElementById('theme-lbl').textContent = THEMES[s].l;
+    }
+  } catch(e) {}
+})();
+
+// ── Pages ────────────────────────────────────────────────────────────────────
+function switchPage(page, el) {
+  document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('page-generator').style.display = page === 'generator' ? 'block' : 'none';
+  const dp = document.getElementById('page-docs');
+  if (page === 'docs') { dp.classList.add('show'); buildDocs(); }
+  else dp.classList.remove('show');
+}
+
+// ── Templates ────────────────────────────────────────────────────────────────
+const TEMPLATES = [
+  {id:1,name:'Modern',emoji:'🎓'},
+  {id:2,name:'Dark Background',emoji:'🌑'},
+  {id:3,name:'Green',emoji:'🌿'},
+  {id:4,name:'Classic',emoji:'📋'},
+  {id:5,name:'Red and Yellow',emoji:'🔴'},
+  {id:6,name:'Golden Elegant',emoji:'✨'},
+  {id:7,name:'Blue Simple',emoji:'🔵'},
+  {id:8,name:'Golden and Green',emoji:'🏆'},
+];
+let selectedTemplate = 1;
+let selectedFormat   = 'pdf';
+let currentBlobUrl   = null;
+
+function buildTemplateGrid() {
+  document.getElementById('tmpl-grid').innerHTML = TEMPLATES.map(t => `
+    <div class="tmpl-card ${t.id===selectedTemplate?'selected':''}" onclick="selectTemplate(${t.id})">
+      <div class="tmpl-emoji">${t.emoji}</div>
+      <div class="tmpl-num">#${t.id}</div>
+      <div class="tmpl-name">${t.name}</div>
+    </div>`).join('');
+}
+function selectTemplate(id) {
+  selectedTemplate = id;
+  buildTemplateGrid();
+}
+function setFmt(fmt, el) {
+  selectedFormat = fmt;
+  document.querySelectorAll('.fmt-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+buildTemplateGrid();
+
+// ── Generate ─────────────────────────────────────────────────────────────────
+async function generateCert() {
+  const name      = document.getElementById('f-name').value.trim();
+  const date      = document.getElementById('f-date').value.trim();
+  const signature = document.getElementById('f-sig').value.trim();
+  const details   = document.getElementById('f-details').value.trim();
+
+  if (!name || !date || !signature || !details) {
+    toast('Please fill in all fields.', 'err'); return;
+  }
+
+  const btn = document.getElementById('gen-btn');
+  const pw  = document.getElementById('prog-wrap');
+  const pf  = document.getElementById('prog-fill');
+  const pt  = document.getElementById('prog-txt');
+  const rw  = document.getElementById('result-wrap');
+
+  if (currentBlobUrl) { URL.revokeObjectURL(currentBlobUrl); currentBlobUrl = null; }
+  rw.classList.remove('show');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin" style="width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff"></span> Generating...';
+  pw.classList.add('show');
+  pf.style.width = '8%';
+  pt.textContent = 'Sending to API...';
+
+  // Fake progress
+  let fp = 8;
+  const ft = setInterval(() => {
+    if (fp < 85) { fp += 2; pf.style.width = fp+'%';
+      if (fp < 30) pt.textContent = 'Sending to API...';
+      else if (fp < 60) pt.textContent = 'Rendering certificate...';
+      else pt.textContent = 'Packaging file...';
+    }
+  }, 600);
+
+  try {
+    const res = await fetch(BASE + '/api/certificate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, date, signature, details, templateId: selectedTemplate, format: selectedFormat }),
+    });
+
+    clearInterval(ft);
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'HTTP ' + res.status);
+    }
+
+    pf.style.width = '95%';
+    pt.textContent = 'Preparing download...';
+
+    const blob      = await res.blob();
+    currentBlobUrl  = URL.createObjectURL(blob);
+
+    const disp   = res.headers.get('Content-Disposition') || '';
+    const fnMatch = disp.match(/filename="([^"]+)"/);
+    const tmplName = TEMPLATES.find(t => t.id === selectedTemplate)?.name || 'Template';
+    const fileName = fnMatch ? fnMatch[1] : `Certificate_${name.replace(/\s+/g,'_')}_${tmplName}-Ahm7xMakki.${selectedFormat}`;
+    const sizeMB   = (blob.size / 1024).toFixed(1);
+
+    pf.style.width = '100%'; pt.textContent = '✓ Done';
+
+    document.getElementById('result-name').textContent = fileName;
+    document.getElementById('result-meta').textContent = sizeMB + ' KB • ' + selectedFormat.toUpperCase() + ' • ' + tmplName;
+
+    const dl = document.getElementById('dl-btn');
+    dl.href = currentBlobUrl; dl.download = fileName;
+
+    setTimeout(() => {
+      pw.classList.remove('show');
+      rw.classList.add('show');
+      dl.click();
+      toast('✓ ' + fileName, 'ok');
+    }, 300);
+
+  } catch(e) {
+    clearInterval(ft);
+    pw.classList.remove('show'); pf.style.width = '0%';
+    toast('Error: ' + e.message, 'err');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download Certificate';
+  }
+}
+
+// ── Docs ─────────────────────────────────────────────────────────────────────
+function buildDocs() {
+  document.getElementById('doc-base-url').textContent = BASE;
+
+  document.getElementById('curl-templates').textContent =
+    'curl "' + BASE + '/api/certificate?action=templates"';
+
+  document.getElementById('curl-generate').textContent =
+    'curl -X POST ' + BASE + '/api/certificate \\\n' +
+    '  -H "Content-Type: application/json" \\\n' +
+    '  -d \'{\n' +
+    '    "name": "Muhammad Makki",\n' +
+    '    "date": "01/01/2025",\n' +
+    '    "signature": "Dr. John Smith",\n' +
+    '    "details": "Awarded for outstanding performance.",\n' +
+    '    "templateId": 1,\n' +
+    '    "format": "pdf"\n' +
+    '  }\' \\\n' +
+    '  --output certificate.pdf';
+
+  document.getElementById('curl-url').textContent =
+    'curl -X POST ' + BASE + '/api/certificate \\\n' +
+    '  -H "Content-Type: application/json" \\\n' +
+    '  -d \'{"name":"Muhammad Makki","date":"01/01/2025","signature":"Dr. Smith","details":"Awarded for excellence.","templateId":6,"returnUrl":true}\'';
+
+  document.getElementById('js-example').textContent =
+    '// Download certificate as file\n' +
+    'const res = await fetch("' + BASE + '/api/certificate", {\n' +
+    '  method: "POST",\n' +
+    '  headers: { "Content-Type": "application/json" },\n' +
+    '  body: JSON.stringify({\n' +
+    '    name: "Muhammad Makki",\n' +
+    '    date: "01/01/2025",\n' +
+    '    signature: "Dr. John Smith",\n' +
+    '    details: "Awarded for outstanding performance.",\n' +
+    '    templateId: 1,\n' +
+    '    format: "pdf"\n' +
+    '  })\n' +
+    '});\n' +
+    'const blob = await res.blob();\n' +
+    'const url  = URL.createObjectURL(blob);\n' +
+    'const a    = document.createElement("a");\n' +
+    'a.href = url; a.download = "certificate.pdf"; a.click();';
+
+  document.getElementById('tmpl-docs-table').innerHTML = TEMPLATES.map(t =>
+    `<tr><td class="tid">${t.id}</td><td>${t.emoji} ${t.name}</td></tr>`
+  ).join('');
+}
+
+function copyBaseUrl(btn) {
+  navigator.clipboard.writeText(BASE).then(() => {
+    btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.textContent).then(() => {
+    btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+
+function toast(msg, type) {
+  const wrap = document.getElementById('toast-wrap');
+  const el   = document.createElement('div');
+  el.className = 'toast ' + type; el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(() => { el.style.opacity='0'; el.style.transition='opacity 0.3s';
+    setTimeout(() => el.remove(), 300); }, 4000);
+}
+</script>
+
+
+</body><chatgpt-sidebar data-rendered="true" data-gpts-theme="light"></chatgpt-sidebar></html>
